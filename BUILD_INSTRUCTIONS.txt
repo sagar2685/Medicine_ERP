@@ -1,0 +1,458 @@
+================================================================================
+                    MEDICINE ERP - BUILD INSTRUCTIONS
+                    Complete Reference Documentation
+================================================================================
+
+================================================================================
+                           PROJECT OVERVIEW
+================================================================================
+
+Project Name: Gita Medical Hall - Medicine ERP
+Language: Python 3.x
+GUI Framework: Tkinter
+Database: Microsoft Excel (separate files for each module)
+
+Description:
+A comprehensive Pharmacy Management System for managing:
+- Medicine inventory (Store)
+- Customer records and billing
+- Distributor management
+- Credit/Debit transactions
+- Expiry alerts
+- PDF bill generation
+
+================================================================================
+                         FOLDER STRUCTURE
+================================================================================
+
+Medicine_ERP/
+├── app.py                    # Main application entry point
+├── db/
+│   └── db.py                 # Database operations module
+├── ui/
+│   ├── ui_store.py           # Store entry UI
+│   ├── ui_store_new.py       # New store entry form
+│   ├── ui_store_list.py      # Store inventory list
+│   ├── ui_customer.py        # Customer management
+│   ├── ui_customer_balance.py # Customer balance display
+│   ├── ui_credit.py          # Credit/Debit transactions
+│   ├── ui_billing.py          # Bill generation
+│   ├── ui_distributor_master.py # Distributor management
+│   ├── ui_distributor_payment.py # Distributor payments
+│   ├── ui_distributor_ledger.py # Distributor ledger
+│   ├── ui_expiry_alert.py    # Expiry alerts
+│   └── ui_utils.py           # UI utilities
+├── pdf/
+│   └── bill_pdf.py           # PDF bill generation
+├── data/                     # Excel data files
+│   ├── customer_details.xlsx
+│   ├── store_details.xlsx
+│   ├── customer_bills.xlsx
+│   ├── distributor_details.xlsx
+│   ├── distributor_transactions.xlsx
+│   └── credit_debit.xlsx
+├── customer_bills/           # Generated PDF bills
+├── logo.ico                  # Application icon
+├── requirements.txt          # Python dependencies
+├── Medicine_ERP.spec         # PyInstaller spec file
+├── build_exe.py              # Build script
+└── migrate_to_separate_files.py # Data migration script
+
+================================================================================
+                      REQUIRED PYTHON PACKAGES
+================================================================================
+
+Install all dependencies:
+    pip install pandas openpyxl reportlab tkcalendar pyperclip pyinstaller
+
+Package Details:
+- pandas: Data manipulation for Excel files
+- openpyxl: Excel file reading/writing
+- reportlab: PDF generation for bills
+- tkcalendar: Date picker widget
+- pyperclip: Clipboard operations
+- pyinstaller: Convert Python to .exe
+
+================================================================================
+                         DATABASE MODULES
+================================================================================
+
+FILE: db/db.py
+----------------
+
+This module handles all database operations using separate Excel files.
+
+Excel Files Used:
+1. data/customer_details.xlsx - Customer records
+2. data/store_details.xlsx - Medicine inventory
+3. data/customer_bills.xlsx - Bill history
+4. data/distributor_details.xlsx - Distributor info
+5. data/distributor_transactions.xlsx - Payment transactions
+6. data/credit_debit.xlsx - Credit/Debit ledger
+
+Functions in db/db.py:
+----------------------
+
+# HELPER FUNCTIONS
+- _get_file(sheet_name)           - Get file path for sheet
+- _ensure_file_exists()           - Create Excel file if not exists
+- _normalize_header(h)            - Normalize column headers
+- normalize_columns(df)           - Normalize DataFrame columns
+- read(sheet)                     - Read Excel sheet
+- read_file(file_path)            - Read specific file
+- save_df(df, sheet_name)         - Save DataFrame to Excel
+- append(sheet, row)              - Append row to sheet
+
+# STORE DETAILS FUNCTIONS
+- get_store_file()                - Get store Excel file path
+- save_store_entry(row)           - Insert/update store entry
+- find_store_entry()              - Find medicine by details
+- increment_store_quantity()      - Add to existing quantity
+- get_all_store_entries()         - Get all inventory items
+- search_store_entries(query)     - Search medicines
+- get_expiring_products(months)  - Get medicines expiring soon
+
+# CUSTOMER DETAILS FUNCTIONS
+- get_customer_file()             - Get customer Excel file path
+- generate_customer_id()          - Generate new customer ID (CUST001 format)
+- add_customer()                  - Add new customer
+- get_all_customers()             - Get all customers
+- search_customers(query)         - Search customers
+- update_customer_by_id()         - Update customer details
+
+# DISTRIBUTOR DETAILS FUNCTIONS
+- get_distributor_file()          - Get distributor Excel file path
+- generate_distributor_id()       - Generate new distributor ID (DIST001)
+- distributor_name_exists()       - Check if distributor exists
+- add_distributor()               - Add new distributor
+- get_all_distributors()          - Get all distributors
+- get_all_distributor_records()   - Get as list of dictionaries
+- get_distributor_by_name()       - Find distributor by name
+- update_distributor_phone()     - Update phone number
+- update_distributor_by_id()      - Update by ID
+- search_distributors(query)      - Search distributors
+- delete_distributor_and_transactions() - Delete distributor
+
+# DISTRIBUTOR TRANSACTIONS FUNCTIONS
+- get_distributor_tx_file()       - Get transactions file path
+- receipt_exists()                - Check if receipt exists
+- get_distributor_transactions()  - Get all transactions
+- get_distributor_pending_sums() - Get pending balances
+- get_distributor_pending_summary() - Summary with search
+- get_distributor_names_from_transactions() - List names
+- add_distributor_adjustment()   - Add credit/debit adjustment
+
+# CREDIT/DEBIT FUNCTIONS
+- get_credit_debit_file()        - Get credit/debit file path
+- get_customer_summary()          - Get customer balance summary
+- search_customers_credit()       - Search in credit/debit
+
+# BILLING FUNCTIONS
+- get_customer_bills_file()      - Get bills file path
+- add_bill_record()               - Add bill record
+- get_customer_bills()            - Get customer bills
+
+# ADDITIONAL FUNCTIONS
+- update_customer_address()       - Update address
+
+================================================================================
+                         UI MODULES DESCRIPTION
+================================================================================
+
+FILE: ui/ui_store.py
+--------------------
+Purpose: Display store inventory in a table view
+Key Functions:
+- store_ui(parent): Main UI function
+- Loads and displays all store entries in Treeview
+
+FILE: ui/ui_store_new.py
+------------------------
+Purpose: Add new medicines to inventory
+Key Functions:
+- store_ui(parent): Form for new medicine entry
+- Fields: Medicine name, Quantity, Batch, MRP, Expiry, Mfg Date, Distributor, Purchase Date
+
+FILE: ui/ui_store_list.py
+-------------------------
+Purpose: List and search store inventory
+Key Functions:
+- store_list_ui(parent): Searchable inventory list
+- Supports filtering by medicine name
+
+FILE: ui/ui_customer.py
+-----------------------
+Purpose: Customer management (Add/Edit/Delete)
+Key Functions:
+- customer_ui(parent): Customer CRUD operations
+- Functions: new_customer(), save_customer(), update_customer()
+
+FILE: ui/ui_customer_balance.py
+-------------------------------
+Purpose: Display customer balance information
+Key Functions:
+- customer_balance_ui(parent): Show customer credits/debits
+
+FILE: ui/ui_credit.py
+---------------------
+Purpose: Credit and Debit transactions
+Key Functions:
+- credit_ui(parent): Transaction entry form
+
+FILE: ui/ui_billing.py
+----------------------
+Purpose: Generate bills for customers
+Key Functions:
+- billing_ui(parent): Bill creation interface
+
+FILE: ui/ui_distributor_master.py
+---------------------------------
+Purpose: Manage distributor information
+Key Functions:
+- distributor_master_ui(parent): Distributor CRUD
+
+FILE: ui/ui_distributor_payment.py
+---------------------------------
+Purpose: Record distributor payments
+Key Functions:
+- distributor_payment_ui(parent): Payment entry
+
+FILE: ui/ui_distributor_ledger.py
+---------------------------------
+Purpose: View distributor transaction history
+Key Functions:
+- distributor_ledger_ui(parent): Ledger display
+
+FILE: ui/ui_expiry_alert.py
+---------------------------
+Purpose: Alert for medicines near expiry
+Key Functions:
+- expiry_alert_ui(parent): Display expiring items
+
+FILE: ui/ui_utils.py
+--------------------
+Purpose: Common UI utilities
+Key Functions:
+- Colors class: Color constants
+- copy_to_clipboard(): Copy text to clipboard
+- get_treeview_data(): Get table data
+- create_context_menu(): Right-click menu
+- show_context_menu(): Show context menu
+
+================================================================================
+                         PDF BILL GENERATION
+================================================================================
+
+FILE: pdf/bill_pdf.py
+---------------------
+Purpose: Generate PDF bills for printed invoices
+Key Functions:
+- generate_bill_pdf(): Create PDF bill
+- Uses reportlab library for PDF generation
+
+================================================================================
+                         HOW TO BUILD EXECUTABLE
+================================================================================
+
+METHOD 1: Using Build Script (Recommended)
+------------------------------------------
+1. Open terminal/command prompt
+2. Navigate to project folder:
+   cd c:/Users/chakr/Medicine_ERP
+3. Run the build script:
+   python build_exe.py
+4. The executable will be created in:
+   - dist/Medicine_ERP.exe
+   - dist_package/Medicine_ERP.exe (with all required files)
+
+METHOD 2: Using Spec File
+-------------------------
+1. Navigate to project folder:
+   cd c:/Users/chakr/Medicine_ERP
+2. Run PyInstaller with spec file:
+   python -m PyInstaller Medicine_ERP.spec
+
+METHOD 3: Using Command Line
+-----------------------------
+1. Navigate to project folder:
+   cd c:/Users/chakr/Medicine_ERP
+2. Run PyInstaller directly:
+   python -m PyInstaller --name=Medicine_ERP --onefile --windowed --icon=logo.ico --add-data=data;data --add-data=customer_bills;customer_bills --hidden-import=pandas --hidden-import=openpyxl --hidden-import=reportlab --hidden-import=tkcalendar --hidden-import=tk --hidden-import=pyperclip --hidden-import=PIL --noconfirm app.py
+
+================================================================================
+                         SPEC FILE DETAILS
+================================================================================
+
+FILE: Medicine_ERP.spec
+-----------------------
+This file tells PyInstaller how to build the executable.
+
+Key Sections:
+- Analysis: Defines input files, hidden imports
+- datas: Additional data files to include
+  - ('data', 'data') - Data folder
+  - ('customer_bills', 'customer_bills') - Bills folder
+- hiddenimports: Modules that PyInstaller might miss
+- exe: Output configuration with icon
+
+To modify spec file:
+1. Edit the datas list to add/remove folders
+2. Add new hiddenimports if you add new libraries
+3. Run: python -m PyInstaller Medicine_ERP.spec
+
+================================================================================
+                         CLEANUP SCRIPTS
+================================================================================
+
+Script to Clean Build Files:
+-----------------------------
+Run these commands in project folder:
+
+    # Remove build folder
+    Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+    
+    # Remove dist folder
+    Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+    
+    # Remove spec file cache
+    Remove-Item Medicine_ERP.spec -ErrorAction SilentlyContinue
+
+Script to Rebuild from Scratch:
+-------------------------------
+    # Clean first
+    Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+    
+    # Rebuild
+    python -m PyInstaller Medicine_ERP.spec
+
+Script to Update Only Code Changes:
+-----------------------------------
+    python -m PyInstaller Medicine_ERP.spec --noconfirm --clean
+
+================================================================================
+                         DIST_PACKAGE CONTENTS
+================================================================================
+
+The final portable package (dist_package/) should contain:
+
+dist_package/
+├── Medicine_ERP.exe          # Main executable
+├── logo.ico                  # Application icon (must be in same folder)
+├── README.txt                # User instructions
+├── customer_bills/          # PDF bills (will be created by app)
+│   └── (empty initially)
+└── data/                    # Excel databases
+    ├── customer_details.xlsx
+    ├── store_details.xlsx
+    ├── customer_bills.xlsx
+    ├── distributor_details.xlsx
+    ├── distributor_transactions.xlsx
+    └── credit_debit.xlsx
+
+IMPORTANT: All files must be in the same folder as Medicine_ERP.exe
+
+================================================================================
+                         DEPLOYMENT INSTRUCTIONS
+================================================================================
+
+To Deploy to Another PC:
+------------------------
+1. Copy entire dist_package folder to target PC
+2. No Python installation needed!
+3. Run Medicine_ERP.exe
+4. First run may take a few seconds to initialize
+
+To Update Existing Installation:
+-------------------------------
+1. Replace Medicine_ERP.exe with new version
+2. Keep data/ and customer_bills/ folders intact
+3. Your data will be preserved
+
+To Backup Data:
+--------------
+Simply copy the entire dist_package folder to a backup location.
+
+================================================================================
+                         TROUBLESHOOTING
+================================================================================
+
+Issue: Icon not showing
+Solution: Ensure logo.ico is in the same folder as .exe
+
+Issue: Data files not found
+Solution: Run as administrator or check file permissions
+
+Issue: PDF bills not saving
+Solution: Ensure customer_bills/ folder exists and is writable
+
+Issue: Application crashes on start
+Solution: Check if all required DLLs are present, reinstall VC++ runtime
+
+Issue: Excel file locked
+Solution: Close Excel if open, then try again
+
+================================================================================
+                         MAIN APPLICATION FLOW
+================================================================================
+
+STARTUP:
+1. app.py loads -> Checks/installs requirements
+2. Creates main Tkinter window with icon
+3. Displays sidebar menu
+4. Shows default welcome screen
+
+MENU STRUCTURE:
+- STORE & SALES
+  ├── Store Entry (ui_store_new.py)
+  ├── Store List (ui_store_list.py)
+  ├── Customer Entry (ui_customer.py)
+  ├── Customer Balance (ui_customer_balance.py)
+  ├── Credit / Debit (ui_credit.py)
+  └── Create Bill (ui_billing.py)
+- DISTRIBUTOR
+  ├── Distributor Master (ui_distributor_master.py)
+  └── Distributor Payment (ui_distributor_payment.py)
+- ALERTS
+  └── Expiry Alerts (ui_expiry_alert.py)
+
+================================================================================
+                         ADDING NEW FEATURES
+================================================================================
+
+To Add New Module:
+1. Create new ui/ui_newmodule.py
+2. Define function: def newmodule_ui(parent):
+3. Add import in app.py:
+   from ui.ui_newmodule import newmodule_ui
+4. Add menu button:
+   menu_button("New Module", lambda: load_screen(content, newmodule_ui))
+
+To Add New Database Sheet:
+1. Add filename to FILES dict in db/db.py
+2. Create _ensure_file_exists() call with columns
+3. Add CRUD functions as needed
+
+================================================================================
+                         VERSION HISTORY
+================================================================================
+
+v1.0 - Initial Release
+- Basic CRUD for customers, distributors, store
+- Bill generation
+- Credit/Debit tracking
+- PDF bill output
+- Separate Excel files for data
+
+================================================================================
+                         CONTACT & SUPPORT
+================================================================================
+
+For issues or questions:
+- Check all import statements are correct
+- Verify Excel files are not corrupted
+- Ensure write permissions in application folder
+- Run with Python first to see error messages:
+  python app.py
+
+================================================================================

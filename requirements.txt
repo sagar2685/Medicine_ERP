@@ -1,0 +1,22 @@
+# ================================================================================
+# MEDICINE ERP - PYTHON DEPENDENCIES
+# ================================================================================
+
+# Install all dependencies using:
+#     pip install -r requirements.txt
+
+# Data handling
+pandas
+openpyxl
+
+# PDF generation
+reportlab
+
+# GUI components
+tkcalendar
+
+# Utilities
+pyperclip
+
+# For creating exe
+PyInstaller
